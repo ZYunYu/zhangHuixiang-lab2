@@ -1,4 +1,9 @@
-// TODO: add the appropriate header files here
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/mman.h> /* Provide shared memory functions */
+#include <sys/stat.h> /* Provide mode constants */
+#include <fcntl.h> /* Provide O_* constants */
 
 
 /**************************************************************
@@ -15,11 +20,21 @@ char* ipc_create(int size){
     /* pointer to shared memory obect */
     char* ptr;
 
-    // TODO: create the shared memory object called lab2
+    fd = shm_open("lab2", O_CREAT | O_RDWR, 0666);
+    // "0666" All users can read and write
+    if (fd == -1) {
+        printf("shm_open call failed");
+        return NULL;
+    }
+    
+    if (ftruncate(fd, size) == -1) {
+        return NULL;
+    }
 
-    // TODO: configure the size of the shared memory object 
-
-    // TODO: memory map the shared memory object */
+    ptr = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (ptr == MAP_FAILED) {
+        return NULL;
+    }
 
     return ptr;
 }
